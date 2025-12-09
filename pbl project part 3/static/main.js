@@ -6,7 +6,7 @@ let currentUser = null;
 
 // ==== Gemini API Key ====
 // write your own api key here
-const GEMINI_API_KEY = "";
+const GEMINI_API_KEY = "###";
 
 // ==== Chatbot UI Logic ====
 window.addEventListener('DOMContentLoaded', function () {
@@ -374,3 +374,4 @@ if (darkModeToggle) {
 const darkPref = localStorage.getItem('darkMode');
 
 setDarkMode(darkPref === 'true'); 
+
