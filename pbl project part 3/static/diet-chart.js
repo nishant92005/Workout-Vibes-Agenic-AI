@@ -1,5 +1,6 @@
 // ==== Gemini API Key ====
-const GEMINI_API_KEY = "AIzaSyBJWkYmY7qgnU4j0VWgvNqCAGkyT8amjuM";
+// write your own api key here 
+const GEMINI_API_KEY = "";
 
 // User authentication state management
 let currentUser = null;
