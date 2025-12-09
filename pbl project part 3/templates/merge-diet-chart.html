@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Merge Diet Charts - Workout Vibes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Roboto&display=swap"
+        rel="stylesheet">
+    <style>
+        .merge-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .merge-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .merge-header h1 {
+            color: #1e3c72;
+            font-size: 3rem;
+            font-family: 'Montserrat', sans-serif;
+            margin-bottom: 15px;
+        }
+
+        .merge-header p {
+            color: #666;
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .charts-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(30, 60, 114, 0.15);
+            margin-bottom: 40px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e0e7ff;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .chart-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(30, 60, 114, 0.2);
+        }
+
+        .chart-card.selected {
+            border-color: #ff6b35;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe8d6 100%);
+        }
+
+        .chart-checkbox {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .chart-title {
+            color: #1e3c72;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-right: 40px;
+        }
+
+        .chart-details {
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .chart-goal {
+            background: linear-gradient(90deg, #ff6b35 0%, #ff922b 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .chart-calories {
+            color: #28a745;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .chart-date {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            transition: background 0.3s;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .merge-controls {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(30, 60, 114, 0.15);
+            margin-bottom: 40px;
+        }
+
+        .goal-selection {
+            margin-bottom: 30px;
+        }
+
+        .goal-selection h3 {
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        .goal-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .goal-option {
+            background: white;
+            border: 2px solid #e0e7ff;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .goal-option:hover {
+            border-color: #ff6b35;
+            transform: translateY(-2px);
+        }
+
+        .goal-option.selected {
+            border-color: #ff6b35;
+            background: linear-gradient(135deg, #fff5f0 0%, #ffe8d6 100%);
+        }
+
+        .goal-option h4 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .goal-option p {
+            color: #666;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+
+        .merge-btn {
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: block;
+            margin: 30px auto 0;
+        }
+
+        .merge-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        }
+
+        .merge-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .selection-summary {
+            background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            border-left: 5px solid #4a90e2;
+        }
+
+        .selection-summary h4 {
+            color: #1e3c72;
+            margin-bottom: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state h3 {
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+
+        .empty-state a {
+            color: #ff6b35;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #ff6b35;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .merged-result {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(30, 60, 114, 0.15);
+            margin-top: 40px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .goal-options {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="main-nav">
+        <ul>
+            <li><a href="{{ url_for('index') }}">Home</a></li>
+            <li><a href="{{ url_for('index') }}#about">About</a></li>
+            <li><a href="{{ url_for('index') }}#reviews">Reviews</a></li>
+            <li><a href="{{ url_for('index') }}#memberships">Memberships</a></li>
+            <li><a href="{{ url_for('diet_chart_page') }}">Diet Chart</a></li>
+            <li><a href="{{ url_for('merge_diet_chart_page') }}" class="active">Merge Diet Chart</a></li>
+            <li class="auth-buttons" id="authButtons">
+                <a href="{{ url_for('login_page') }}" class="login-btn">Login</a>
+                <a href="{{ url_for('signup_page') }}" class="signup-btn">Sign Up</a>
+            </li>
+            <li class="user-info" id="userInfo" style="display: none;">
+                <span class="user-name" id="userName">User</span>
+                <button class="logout-btn" id="logoutBtn">Logout</button>
+            </li>
+            <li class="darkmode-toggle-li">
+                <button id="darkModeToggle" class="darkmode-toggle" title="Toggle dark mode">🌙</button>
+            </li>
+        </ul>
+    </nav>
+
+    <div class="merge-container">
+        <div class="merge-header">
+            <h1>🔄 Merge Diet Charts</h1>
+            <p>Combine your saved diet charts to create the ultimate personalized nutrition plan</p>
+        </div>
+
+        <div class="charts-section">
+            <h2 style="color: #1e3c72; margin-bottom: 25px; font-size: 2rem;">📋 Your Saved Diet Charts</h2>
+            
+            <div id="chartsContainer">
+                <div class="loading" style="text-align: center; padding: 40px;">
+                    <div class="spinner"></div>
+                    <p>Loading your diet charts...</p>
+                </div>
+            </div>
+
+            <div id="emptyState" class="empty-state" style="display: none;">
+                <h3>📝 No Diet Charts Found</h3>
+                <p>You haven't saved any diet charts yet.</p>
+                <p><a href="{{ url_for('diet_chart_page') }}">Create your first diet chart</a> to get started with merging!</p>
+            </div>
+        </div>
+
+        <div class="merge-controls" id="mergeControls" style="display: none;">
+            <div class="selection-summary" id="selectionSummary">
+                <h4>📊 Selection Summary</h4>
+                <p id="summaryText">Select diet charts above to see summary</p>
+            </div>
+
+            <div class="goal-selection">
+                <h3>🎯 What's Your Goal?</h3>
+                <p style="color: #666; margin-bottom: 20px;">Choose your primary fitness goal for the merged diet chart:</p>
+                
+                <div class="goal-options">
+                    <div class="goal-option" data-goal="weight_loss">
+                        <h4>🏃‍♀️ Weight Loss</h4>
+                        <p>Focus on fat burning and calorie deficit</p>
+                    </div>
+                    <div class="goal-option" data-goal="weight_loss_muscle_gain">
+                        <h4>💪 Weight Loss + Muscle Gain</h4>
+                        <p>Balanced approach for body recomposition</p>
+                    </div>
+                    <div class="goal-option" data-goal="muscle_gain">
+                        <h4>🏋️‍♂️ Muscle Gain Only</h4>
+                        <p>Maximum muscle building and strength</p>
+                    </div>
+                    <div class="goal-option" data-goal="weight_loss_endurance">
+                        <h4>🏃‍♂️ Weight Loss + Endurance</h4>
+                        <p>Fat loss with cardiovascular performance</p>
+                    </div>
+                    <div class="goal-option" data-goal="muscle_gain_endurance">
+                        <h4>⚡ Muscle Gain + Endurance</h4>
+                        <p>Build muscle while improving stamina</p>
+                    </div>
+                </div>
+            </div>
+
+            <button class="merge-btn" id="mergeBtn" disabled>
+                🔄 Merge Selected Charts
+            </button>
+        </div>
+
+        <div class="merged-result" id="mergedResult">
+            <h3 style="color: #1e3c72; text-align: center; margin-bottom: 30px;">🎉 Your Optimized Merged Diet Chart</h3>
+            <div id="mergedContent"></div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h3 style="color: #1e3c72; margin-bottom: 15px;">🤖 AI Optimization in Progress</h3>
+            <p style="color: #666;">Analyzing and merging your diet charts...</p>
+            <p style="color: #666; font-size: 0.9rem;">This may take a few moments</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='merge-diet-chart.js') }}"></script>
+</body>
+
+</html>
